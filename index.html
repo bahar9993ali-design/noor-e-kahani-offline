@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noor-e-Kahani Offline</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:serif;background:#fff8f0;color:#3a2a1a}
+header{background:#7f1d1d;color:white;padding:20px;text-align:center}
+.search{margin:15px;background:white;padding:10px;border-radius:10px}
+.search input{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc}
+.grid{padding:15px;display:grid;gap:15px}
+.card{background:white;padding:15px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+</style>
+</head>
+<body>
+<header><h1>🌹 Noor-e-Kahani</h1><p>100% Offline - Bina Net Ke</p></header>
+<div class="search"><input id="s" placeholder="Search kahani..."></div>
+<div class="grid" id="grid"></div>
+<script>
+const stories=[
+{id:1,title:"Chandni Raat Ka Tohfa",desc:"Gareeb larki ki kahani"},
+{id:2,title:"Maa Ki Mamta",desc:"Maa ki mohabbat"},
+{id:3,title:"Sabar Ka Phal",desc:"Sabar ka ajar"},
+{id:4,title:"Dosti Ki Qadar",desc:"Sachi dosti"}
+];
+function render(list){
+document.getElementById('grid').innerHTML=list.map(x=>`<div class="card"><h3>${x.title}</h3><p>${x.desc}</p></div>`).join('');
+}
+document.getElementById('s').addEventListener('input',e=>{
+render(stories.filter(s=>s.title.toLowerCase().includes(e.target.value.toLowerCase())))
+});
+render(stories);
+</script>
+</body>
+</html>
