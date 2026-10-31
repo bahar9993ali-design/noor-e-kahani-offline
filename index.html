@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Noor-e-Kahani - 100% Offline</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui;background:#fffaf0;color:#222}
+header{background:#134e4a;color:#fff;padding:20px;text-align:center;position:sticky;top:0;z-index:10}
+#search{width:92%;margin:12px 4%;padding:13px 18px;border-radius:30px;border:1.5px solid #d6d3d1;outline:none;font-size:15px}
+.cats{display:flex;gap:8px;overflow:auto;padding:0 14px 12px}
+.cats button{white-space:nowrap;padding:8px 18px;border-radius:22px;border:1px solid #0f766e;background:#fff;color:#0f766e;font-weight:600}
+.cats button.on{background:#0f766e;color:#fff}
+#grid{padding:14px;display:grid;gap:12px;max-width:800px;margin:auto}
+.card{background:#fff;padding:16px;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,.07);cursor:pointer}
+.badge{background:#fef3c7;color:#92400e;padding:3px 10px;border-radius:10px;font-size:11px}
+#view{display:none;position:fixed;inset:0;background:#fffaf0;z-index:99;overflow:auto}
+#view.show{display:block}
+.top{background:#134e4a;color:#fff;padding:14px;display:flex;justify-content:space-between;position:sticky;top:0}
+.content{padding:20px;line-height:2.2;font-size:19px;max-width:720px;margin:auto}
+.back{background:#fff;color:#134e4a;border:none;padding:8px 18px;border-radius:20px;font-weight:700}
+</style>
+</head>
+<body>
+<header><h1>🌙 نورِ کہانی</h1><p style="opacity:.9;font-size:13px;margin-top:6px">100% Offline - 10+ اسلامی کہانیاں</p></header>
+<input id="search" placeholder="تلاش کریں..." oninput="filter()">
+<div class="cats" id="cats"></div>
+<div id="grid"></div>
+<div id="view"><div class="top"><button class="back" onclick="closeView()">← واپس</button><span id="catName"></span></div><div class="content" id="storyContent"></div></div>
+<script>
+const stories=[
+{c:"سیرت",t:"نبی ﷺ کی مہربانی",d:"بوڑھی عورت روز کچرا پھینکتی تھی",f:"ایک بوڑھی عورت روز نبی کریم ﷺ پر کچرا پھینکتی تھی۔ ایک دن نہ پھینکا تو آپ اس کی خبر لینے گئے۔ وہ بیمار تھی۔ آپ کی مہربانی دیکھ کر وہ مسلمان ہو گئی۔ سبق: بداخلاقی کا جواب اخلاق سے دو۔"},
+{c:"سیرت",t:"سچا تاجر",d:"الصادق الامین",f:"آپ تجارت میں سچ بولتے۔ حضرت خدیجہ نے سنا تو تجارت پر بھیجا۔ بہترین نفع کمایا۔ اسی لیے آپ کو الصادق الامین کہتے تھے۔"},
+{c:"صحابہ",t:"ابوبکر کی سخاوت",d:"سارا مال اللہ کی راہ میں",f:"تبوک پر عمر آدھا مال لائے، ابوبکر سارا لائے۔ پوچھا گھر کیا چھوڑا؟ کہا اللہ اور رسول کافی ہیں۔"},
+{c:"صحابہ",t:"عمر کا انصاف",d:"آٹا پیٹھ پر لاد کر لائے",f:"عورت پتھر ابال رہی تھی بچوں کو بہلانے کو۔ عمر آٹا پیٹھ پر لاد کر لائے اور خود کھانا پکا کر کھلایا۔"},
+{c:"اخلاق",t:"معاف کرنے کا صلہ",d:"حضرت علی کا صبر",f:"ایک شخص نے حضرت علی کو برا کہا۔ آپ خاموش رہے اور فرمایا اگر سچ ہے تو اللہ مجھے معاف کرے، جھوٹ ہے تو تجھے معاف کرے۔"},
+{c:"اخلاق",t:"خوش اخلاقی جنت کا راستہ",d:"عبادت کم اخلاق اچھے",f:"ایک عورت بہت عبادت کرتی مگر بداخلاق تھی، جہنم میں۔ دوسری کم عبادت مگر خوش اخلاق جنت میں۔"},
+{c:"انبیاء",t:"یوسف کا صبر",d:"کنویں سے تخت تک",f:"بھائیوں نے کنویں میں ڈالا، جیل گئے، صبر کیا، اللہ نے بادشاہ بنا دیا۔"},
+{c:"انبیاء",t:"ایوب کا صبر",d:"بیماری میں بھی شکر",f:"حضرت ایوب سالوں بیمار رہے مگر شکوہ نہ کیا۔ اللہ نے دگنا لوٹا دیا۔"},
+{c:"سبق آموز",t:"تین اہم سوال",d:"اہم وقت کونسا ہے؟",f:"اہم وقت ابھی کا ہے، اہم شخص سامنے والا، اہم کام اس سے بھلائی کرنا۔"},
+{c:"سبق آموز",t:"دو مٹھی چاول",d:"سخاوت کا انعام",f:"غریب ماں نے ایک مٹھی فقیر کو دی، اللہ نے خزانہ بھیج دیا۔"}
+];
+let active="سب";let allCats=["سب",...new Set(stories.map(s=>s.c))];
+let catsDiv=document.getElementById('cats');
+allCats.forEach(cat=>{let b=document.createElement('button');b.textContent=cat;if(cat===active)b.className='on';b.onclick=()=>{active=cat;document.querySelectorAll('.cats button').forEach(x=>x.className='');b.className='on';filter();};catsDiv.appendChild(b);});
+function filter(){let q=document.getElementById('search').value.toLowerCase();let list=stories.filter(s=>(active==="سب"||s.c===active)&&(s.t.toLowerCase().includes(q)||s.d.toLowerCase().includes(q)));let grid=document.getElementById('grid');grid.innerHTML='';list.forEach(s=>{let idx=stories.indexOf(s);let d=document.createElement('div');d.className='card';d.innerHTML=`<span class="badge">${s.c}</span><h3 style="margin-top:8px">${s.t}</h3><p>${s.d}</p>`;d.onclick=()=>openStory(idx);grid.appendChild(d);});}
+function openStory(i){let s=stories[i];document.getElementById('catName').textContent=s.c;document.getElementById('storyContent').innerHTML=`<h2 style="color:#134e4a">${s.t}</h2><p style="margin-top:18px">${s.f}</p><br><div style="background:#f0fdf4;padding:14px;border-radius:12px;border:1px solid #bbf7d0"><b>🌟 سبق:</b> اچھے اخلاق سے دل جیتو</div>`;document.getElementById('view').classList.add('show');}
+function closeView(){document.getElementById('view').classList.remove('show');}
+filter();
+</script>
+</body>
+</html>
